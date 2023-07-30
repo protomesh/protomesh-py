@@ -100,7 +100,7 @@ class GrpcService:
 
     def __getitem__(self, method_name: str) -> GrpcMethod:
 
-        if method_name not in self.methods:
+        if method_name not in self.__methods:
             raise Exception("Method not found")
         
         return self.__methods[method_name]
