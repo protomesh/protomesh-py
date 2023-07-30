@@ -6,6 +6,7 @@ from enum import Enum
 from .lambda_context import GrpcContext
 
 from google.protobuf.descriptor import ServiceDescriptor, MethodDescriptor
+from google.protobuf.descriptor_pb2 import MethodDescriptorProto
 from google.protobuf import message_factory
 
 import base64
@@ -24,6 +25,7 @@ class AbstractGrpcService:
 class GrpcMethod:
 
     __method_desc: MethodDescriptor = None
+    __method_desc_proto: MethodDescriptorProto = None
     __service: AbstractGrpcService = None
 
     __request_factory = None
@@ -31,17 +33,21 @@ class GrpcMethod:
     def __init__(self, method_desc: MethodDescriptor, service: AbstractGrpcService):
         
         self.__method_desc = method_desc
+        self.__method_desc_proto = MethodDescriptorProto()
+
+        method_desc.CopyToProto(self.__method_desc_proto)
+
         self.__service = service
 
         self.__request_factory = message_factory.GetMessageClass(method_desc.input_type)
 
 
     def get_method_type(self) -> MethodType:
-        if self.__method_desc["client_streaming"] and self.__method_desc.server_streaming:
+        if self.__method_desc_proto.client_streaming and self.__method_desc_proto.server_streaming:
             return MethodType.STREAM_STREAM
-        elif self.__method_desc.client_streaming:
+        elif self.__method_desc_proto.client_streaming:
             return MethodType.STREAM_UNARY
-        elif self.__method_desc.server_streaming:
+        elif self.__method_desc_proto.server_streaming:
             return MethodType.UNARY_STREAM
         else:
             return MethodType.UNARY_UNARY
