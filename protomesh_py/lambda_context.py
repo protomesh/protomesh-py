@@ -1,8 +1,7 @@
 from grpc import ServicerContext, StatusCode
 from typing import Dict, List
 from aws_lambda_typing import context as context_, events, responses
-from lambda_conversion import convert_grpc_to_http_status_code
-
+import lambda_conversion
 class GrpcContext(ServicerContext):
 
     __client_metadata: Dict[str, List[str]] = None
@@ -44,7 +43,7 @@ class GrpcContext(ServicerContext):
     
     def attach_to_response(self, res: responses.APIGatewayProxyResponseV1):
 
-        res["statusCode"] = convert_grpc_to_http_status_code(self.__code).value
+        res["statusCode"] = lambda_conversion.convert_grpc_to_http_status_code(self.__code).value
 
         for key, value in self.__service_metadata.items():
             res["multiValueHeaders"][key] = value
