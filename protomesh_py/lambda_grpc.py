@@ -3,7 +3,7 @@ from aws_lambda_typing import context as context_, events, responses
 from typing import Dict
 from enum import Enum
 
-import lambda_context
+from .lambda_context import GrpcContext
 
 from google.protobuf.descriptor import ServiceDescriptor, MethodDescriptor
 from google.protobuf.message_factory import MessageFactory
@@ -50,7 +50,7 @@ class GrpcMethod:
     
     def __call__(self, event: events.APIGatewayProxyEventV1, context: context_.Context) -> responses.APIGatewayProxyResponseV1:
 
-        ctx = lambda_context.GrpcContext(event, context)
+        ctx = GrpcContext(event, context)
 
         method_type = self.get_method_type()
 
