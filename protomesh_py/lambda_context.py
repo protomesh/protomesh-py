@@ -5,7 +5,7 @@ from .lambda_conversion import convert_grpc_to_http_status_code
 
 class GrpcContext(ServicerContext):
 
-    __client_metadata: Dict[str, List[str]] = None
+    __client_metadata: Dict[str, List[str]] = {}
     __code: StatusCode = StatusCode.OK
     __details: str = None
     __service_metadata: Dict[str, List[str]] = {}
@@ -15,10 +15,13 @@ class GrpcContext(ServicerContext):
     def __init__(self, event: events.APIGatewayProxyEventV1, context: context_.Context):
         
         self.__context = context
-        self.__client_metadata = event["headers"].copy()
 
-        for key, value in event["multiValueHeaders"].items():
-            self.__client_metadata[key] = [value]
+        if event["headers"] is not None:
+            self.__client_metadata = event["headers"].copy()
+
+        if event["multiValueHeaders"] is not None:
+            for key, value in event["multiValueHeaders"].items():
+                self.__client_metadata[key] = [value]
 
     def invocation_metadata(self) -> Dict[str, List[str]]:
         return self.__client_metadata
