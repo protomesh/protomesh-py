@@ -86,12 +86,19 @@ class GrpcMethod:
 
             try:
 
-                call_res = getattr(self.__service, self.__method_desc.name)(req, ctx)
-            
-                res["isBase64Encoded"] = True
-                res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
+                method_caller = getattr(self.__service, self.__method_desc.name)
+                
+                if method_type == MethodType.UNARY_UNARY:
+                    call_res = method_caller(req, ctx)
 
-                logger.info("Response: %s", res["body"])
+                    res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
+                
+                elif method_type == MethodType.UNARY_STREAM:
+                    call_res = next(method_caller(req, ctx))
+
+                    res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
+                
+                res["isBase64Encoded"] = True
 
             except Exception as e:
                 
