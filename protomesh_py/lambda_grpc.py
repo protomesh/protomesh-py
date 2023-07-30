@@ -9,6 +9,15 @@ from google.protobuf.descriptor import ServiceDescriptor, MethodDescriptor
 from google.protobuf.descriptor_pb2 import MethodDescriptorProto
 from google.protobuf import message_factory
 
+import logging
+
+if len(logging.getLogger().handlers) > 0:
+    # The Lambda environment pre-configures a handler logging to stderr. If a handler is already configured,
+    # `.basicConfig` does not execute. Thus we set the level directly.
+    logging.getLogger().setLevel(logging.INFO)
+else:
+    logging.basicConfig(level=logging.INFO)
+
 import base64
 
 class MethodType(Enum):
@@ -79,7 +88,9 @@ class GrpcMethod:
             
                 res["isBase64Encoded"] = True
                 res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
-            
+
+                logging.info("Response: %s", res["body"])
+
             except Exception as e:
                 
                 res["body"] = str(e)
