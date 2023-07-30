@@ -6,7 +6,7 @@ from enum import Enum
 from .lambda_context import GrpcContext
 
 from google.protobuf.descriptor import ServiceDescriptor, MethodDescriptor
-from google.protobuf.message_factory import MessageFactory
+from google.protobuf import message_factory
 
 import base64
 
@@ -33,9 +33,7 @@ class GrpcMethod:
         self.__method_desc = method_desc
         self.__service = service
 
-        message_factory = MessageFactory()
-
-        self.__request_factory = message_factory.GetPrototype(method_desc.input_type)
+        self.__request_factory = message_factory.GetMessageClass(method_desc.input_type)
 
 
     def get_method_type(self) -> MethodType:
