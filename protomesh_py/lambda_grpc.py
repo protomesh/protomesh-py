@@ -106,10 +106,10 @@ class GrpcMethod:
                 res["isBase64Encoded"] = True
 
             except Exception as e:
-                
+            
                 res["body"] = str(e)
 
-                logger.error("Error: %s", res["body"])
+                logger.exception(e)
 
             finally:
                 ctx.attach_to_response(res)
