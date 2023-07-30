@@ -11,12 +11,14 @@ from google.protobuf import message_factory
 
 import logging
 
-if len(logging.getLogger().handlers) > 0:
+if logging.getLogger().hasHandlers():
     # The Lambda environment pre-configures a handler logging to stderr. If a handler is already configured,
     # `.basicConfig` does not execute. Thus we set the level directly.
     logging.getLogger().setLevel(logging.INFO)
 else:
     logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger()
 
 import base64
 
@@ -89,15 +91,16 @@ class GrpcMethod:
                 res["isBase64Encoded"] = True
                 res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
 
-                logging.info("Response: %s", res["body"])
+                logger.info("Response: %s", res["body"])
 
             except Exception as e:
                 
                 res["body"] = str(e)
 
+                logger.error("Error: %s", res["body"])
+
             finally:
                 ctx.attach_to_response(res)
-
 
             return res
    
