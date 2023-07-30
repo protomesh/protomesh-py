@@ -144,7 +144,7 @@ class GrpcHandler:
         
         method = self.__grpc_router[event]
 
-        return method(method, context)
+        return method(event, context)
 
 
 # class LinkService(AbstractGrpcService):
