@@ -99,6 +99,8 @@ class GrpcMethod:
 
                     call_res = next(gen_res)
 
+                    logger.info("First response: %s", call_res)
+
                     res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
                 
                 res["isBase64Encoded"] = True
