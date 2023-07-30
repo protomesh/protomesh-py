@@ -94,7 +94,10 @@ class GrpcMethod:
                     res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
                 
                 elif method_type == MethodType.UNARY_STREAM:
-                    call_res = next(method_caller(req, ctx))
+                    
+                    gen_res = method_caller(req, ctx)
+
+                    call_res = next(gen_res)
 
                     res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
                 
