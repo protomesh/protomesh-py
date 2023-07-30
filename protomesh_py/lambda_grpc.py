@@ -37,7 +37,7 @@ class GrpcMethod:
 
 
     def get_method_type(self) -> MethodType:
-        if self.__method_desc.client_streaming and self.__method_desc.server_streaming:
+        if self.__method_desc["client_streaming"] and self.__method_desc.server_streaming:
             return MethodType.STREAM_STREAM
         elif self.__method_desc.client_streaming:
             return MethodType.STREAM_UNARY
@@ -145,24 +145,3 @@ class GrpcHandler:
         method = self.__grpc_router[event]
 
         return method(event, context)
-
-
-# class LinkService(AbstractGrpcService):
-
-#     def get_service_descriptor(self) -> ServiceDescriptor:
-#         return LINK_DESCRIPTOR.services_by_name["LinkService"]
-
-
-# pp = pprint.PrettyPrinter(indent=4)
-
-# router = GrpcRouter()
-
-# router.register_service(LinkService())
-
-# ev = events.APIGatewayProxyEventV1(path="/pomwm.api.v2.datalink.LinkService/ListByIdentity", body="{}")
-
-# y = router[ev]
-
-# x = LINK_DESCRIPTOR.services_by_name["LinkService"].methods_by_name["Delete"]
-# # pp.pprint(router.services)
-# pp.pprint(y)
