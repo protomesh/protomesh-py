@@ -61,7 +61,7 @@ class GrpcMethod:
         req_body = event["body"]
 
         if event["isBase64Encoded"]:
-            req_body = base64.b64decode(req_body)
+            req_body = base64.b64decode(req_body + '==', validate=False)
 
         if method_type == MethodType.UNARY_UNARY or method_type == MethodType.UNARY_STREAM:
 
@@ -78,7 +78,7 @@ class GrpcMethod:
                 call_res = getattr(self.__service, self.__method_desc.name)(req, ctx)
             
                 res["isBase64Encoded"] = True
-                res["body"] = base64.b64encode(call_res.SerializeToString())
+                res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
             
             except Exception as e:
                 
