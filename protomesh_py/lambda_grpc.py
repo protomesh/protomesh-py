@@ -141,8 +141,12 @@ class GrpcService:
 class GrpcRouter:
 
     __services: Dict[str, GrpcService] = {}
+    __path_prefix: str = None
 
-    def register_service(self, service: AbstractGrpcService) -> GrpcService:
+    def register_service(self, service: AbstractGrpcService, path_prefix: str = None) -> GrpcService:
+
+        if path_prefix is not None:
+            self.__path_prefix = path_prefix.strip("/")
 
         service_desc = service.get_service_descriptor()
 
@@ -156,8 +160,13 @@ class GrpcRouter:
         return grpc_service
     
     def __getitem__(self, event: events.APIGatewayProxyEventV1) -> GrpcMethod:
-            
-        service_name, method_name = event["path"].strip("/").split("/")
+
+        req_path = event["path"].strip("/")
+
+        if self.__path_prefix is not None:
+            req_path = req_path.removeprefix(self.__path_prefix).strip("/")
+
+        service_name, method_name = req_path.split("/")
 
         if service_name not in self.__services:
             raise Exception("Service not found")
