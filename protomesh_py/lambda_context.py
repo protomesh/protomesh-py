@@ -21,7 +21,7 @@ class GrpcContext(ServicerContext):
 
         if event["multiValueHeaders"] is not None:
             for key, value in event["multiValueHeaders"].items():
-                self.__client_metadata[key] = [value]
+                self.__client_metadata[key] = value
 
     def invocation_metadata(self) -> Dict[str, List[str]]:
         return self.__client_metadata
