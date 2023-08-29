@@ -87,27 +87,34 @@ class GrpcMethod:
             try:
 
                 method_caller = getattr(self.__service, self.__method_desc.name)
+
+                res["isBase64Encoded"] = True
                 
                 if method_type == MethodType.UNARY_UNARY:
                     call_res = method_caller(req, ctx)
 
-                    res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
+                    if call_res is not None:
+                        res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
+                    else:
+                        res["body"] = ""
+                        res["isBase64Encoded"] = False
                 
                 elif method_type == MethodType.UNARY_STREAM:
                     
                     gen_res = method_caller(req, ctx)
 
                     call_res = next(gen_res)
-
-                    logger.info("First response: %s", call_res)
-
-                    res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
-                
-                res["isBase64Encoded"] = True
+                    
+                    if call_res is not None:
+                        res["body"] = base64.b64encode(call_res.SerializeToString()).decode('ascii').rstrip('=')
+                    else:
+                        res["body"] = ""
+                        res["isBase64Encoded"] = False
 
             except Exception as e:
-            
+
                 res["body"] = str(e)
+                res["isBase64Encoded"] = False
 
                 logger.exception(e)
 
@@ -117,7 +124,6 @@ class GrpcMethod:
             return res
    
         raise Exception("Method type not supported")
-
 
 class GrpcService:
 

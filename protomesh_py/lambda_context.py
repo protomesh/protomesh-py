@@ -55,6 +55,10 @@ class GrpcContext(ServicerContext):
 
         res["statusCode"] = convert_grpc_to_http_status_code(self.__code).value
 
+        if self.__details is not None:
+            res["body"] = self.__details
+            res["isBase64Encoded"] = False
+
         for key, value in self.__service_metadata.items():
             res["multiValueHeaders"][key] = value
 
