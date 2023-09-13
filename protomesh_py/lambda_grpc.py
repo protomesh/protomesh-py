@@ -1,6 +1,6 @@
 from aws_lambda_typing import context as context_, events, responses
 
-from typing import Dict
+from typing import Dict, Iterable
 from enum import Enum
 
 from .lambda_context import GrpcContext
@@ -127,11 +127,13 @@ class GrpcMethod:
 
 class GrpcService:
 
-    __methods: Dict[str, GrpcMethod] = {}
+    __methods: Dict[str, GrpcMethod]
 
     def __init__(self, service: AbstractGrpcService):
 
         service_desc = service.get_service_descriptor()
+
+        self.__methods = {}
 
         for method_name, method_desc in service_desc.methods_by_name.items():
             self.__methods[method_name] = GrpcMethod(method_desc, service)
@@ -146,13 +148,18 @@ class GrpcService:
 
 class GrpcRouter:
 
-    __services: Dict[str, GrpcService] = {}
-    __path_prefix: str = None
+    __services: Dict[str, GrpcService]
+    __path_prefix: set[str] = None
 
-    def register_service(self, service: AbstractGrpcService, path_prefix: str = None) -> GrpcService:
+    def __init__(self):
+        self.__services = {}
 
-        if path_prefix is not None:
-            self.__path_prefix = path_prefix.strip("/")
+    def register_service(self, service: AbstractGrpcService, path_prefixes: str | Iterable[str] | None = None) -> GrpcService:
+
+        if isinstance(path_prefixes, Iterable):
+            self.__path_prefix = set([path_prefix.strip("/") for path_prefix in path_prefixes])
+        elif isinstance(path_prefixes, str):
+            self.__path_prefix = set([path_prefixes.strip("/")])
 
         service_desc = service.get_service_descriptor()
 
@@ -170,7 +177,12 @@ class GrpcRouter:
         req_path = event["path"].strip("/")
 
         if self.__path_prefix is not None:
-            req_path = req_path.removeprefix(self.__path_prefix).strip("/")
+
+            for path_prefix in self.__path_prefix:
+                
+                if req_path.startswith(path_prefix):
+                    req_path = req_path.removeprefix(self.__path_prefix).strip("/")
+                    break
 
         service_name, method_name = req_path.split("/")
 
