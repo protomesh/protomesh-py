@@ -181,7 +181,7 @@ class GrpcRouter:
             for path_prefix in self.__path_prefix:
                 
                 if req_path.startswith(path_prefix):
-                    req_path = req_path.removeprefix(self.__path_prefix).strip("/")
+                    req_path = req_path.removeprefix(path_prefix).strip("/")
                     break
 
         service_name, method_name = req_path.split("/")
