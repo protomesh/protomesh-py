@@ -59,6 +59,9 @@ class GrpcContext(ServicerContext):
             res["body"] = self.__details
             res["isBase64Encoded"] = False
 
+        if len(self.__service_metadata) > 0:
+            res["multiValueHeaders"] = {}
+
         for key, value in self.__service_metadata.items():
             res["multiValueHeaders"][key] = value
 
