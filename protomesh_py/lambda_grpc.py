@@ -1,7 +1,11 @@
 from aws_lambda_typing import context as context_, events, responses
 
+from http import HTTPStatus
+
 from typing import Dict, Iterable
 from enum import Enum
+
+from grpc import StatusCode
 
 from .lambda_context import GrpcContext
 
@@ -120,6 +124,9 @@ class GrpcMethod:
 
             finally:
                 ctx.attach_to_response(res)
+
+                if method_type == MethodType.UNARY_STREAM and ctx.code() == StatusCode.OK:
+                    res["statusCode"] = HTTPStatus.PROCESSING.value
 
             return res
    
