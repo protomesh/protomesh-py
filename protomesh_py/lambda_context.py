@@ -5,15 +5,15 @@ from .lambda_conversion import convert_grpc_to_http_status_code
 
 class GrpcContext(ServicerContext):
 
-    __client_metadata: Dict[str, List[str]] = {}
-    __code: StatusCode = StatusCode.OK
-    __details: str = None
-    __service_metadata: Dict[str, List[str]] = {}
-    __context: context_.Context = None
-    __callback: List[Callable] = []
-
     def __init__(self, event: events.APIGatewayProxyEventV1, context: context_.Context):
-        
+
+        self.__client_metadata: Dict[str, List[str]] = {}
+        self.__code: StatusCode = StatusCode.OK
+        self.__details: str = None
+        self.__service_metadata: Dict[str, List[str]] = {}
+        self.__context: context_.Context = None
+        self.__callback: List[Callable] = []
+    
         self.__context = context
 
         if event["headers"] is not None:
@@ -63,6 +63,10 @@ class GrpcContext(ServicerContext):
             res["multiValueHeaders"] = {}
 
         for key, value in self.__service_metadata.items():
+
+            if "multiValueHeaders" not in res:
+                res["multiValueHeaders"] = {}
+
             res["multiValueHeaders"][key] = value
 
     def peer(self):
